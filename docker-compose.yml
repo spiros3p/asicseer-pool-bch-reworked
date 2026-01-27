@@ -12,7 +12,7 @@ services:
       test: ["CMD", "/entrypoint.sh", "bitcoin-cli", "getblockchaininfo"]
     networks:
       bch_network:
-        ipv4_address: 172.20.0.10
+        ipv4_address: 172.21.0.10
 
   pool:
     container_name: bch-pool
@@ -41,10 +41,10 @@ services:
       - /asicseer/asicseer-pool.conf
     networks:
       bch_network:
-        ipv4_address: 172.20.0.9
+        ipv4_address: 172.21.0.9
 
 networks:
   bch_network:
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.21.0.0/16
