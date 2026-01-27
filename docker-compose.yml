@@ -1,22 +1,50 @@
-name: bitcoin-cash-node
+name: bch-node-pool
 services:
   node:
+    container_name: bch-node
     image: zquestz/bitcoin-cash-node
     command: bitcoind
+    restart: unless-stopped
     volumes:
       - ./node-data:/data
+      - ./bitcoin.conf:/data/bitcoin.conf
     healthcheck:
       test: ["CMD", "/entrypoint.sh", "bitcoin-cli", "getblockchaininfo"]
+    networks:
+      bch_network:
+        ipv4_address: 172.20.0.10
 
   pool:
-    image: asicseer-pool
-    ports:
-      - "3333:3333"
-    volumes:
-      - ./pool-conf:/asicseer/conf
-      - ./pool-logs:/asicseer/logs
+    container_name: bch-pool
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
     depends_on:
       node:
         condition: service_healthy
-    command: asicseer-pool -l 7 -B -k -c /asicseer/conf/asicseer-pool.conf
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./asicseer-pool.conf:/asicseer/asicseer-pool.conf:ro
+      - ./pool-conf:/asicseer/conf
+      - ./pool-logs:/asicseer/logs
+      - ./pool-logs-2:/usr/src/asicseer-pool/build/src/logs
+    command:
+      - /usr/bin/asicseer-pool
+      - -l
+      - "7"
+      - -B
+      - -k
+      - -L
+      - -c
+      - /asicseer/asicseer-pool.conf
+    networks:
+      bch_network:
+        ipv4_address: 172.20.0.9
 
+networks:
+  bch_network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

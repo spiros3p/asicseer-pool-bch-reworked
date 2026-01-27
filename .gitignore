@@ -42,3 +42,8 @@ ltmain.sh
 libtool
 
 
+
+node-data
+pool-conf
+pool-logs
+pool-logs-2
