@@ -28,8 +28,8 @@ services:
     volumes:
       - ./asicseer-pool.conf:/asicseer/asicseer-pool.conf:ro
       - ./pool-conf:/asicseer/conf
-      - ./pool-logs:/asicseer/logs
-      - ./pool-logs-2:/usr/src/asicseer-pool/build/src/logs
+      - ./pool-logs:/logs
+      # - ./pool-logs-2:/usr/src/asicseer-pool/build/src/logs
     command:
       - /usr/bin/asicseer-pool
       - -l
