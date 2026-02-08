@@ -649,8 +649,7 @@ double tvdiff(const tv_t *end, const tv_t *start);
 void decay_time(double *f, double fadd, double fsecs, double interval);
 double sane_tdiff(const tv_t *end, const tv_t *start);
 /* Convert a double value into a truncated string for displaying with its
- * associated suitable for Mega, Giga etc. Buf array needs to be long enough.
- * Returns false if bufsiz was not long enough or an error occurred. */
+ * associated suitable for Mega, Giga etc. Buf array needs to be long enough. */
 void suffix_string(double val, char *buf, unsigned bufsiz, unsigned sigdigits);
 
 double le256todouble(const uchar *target);
