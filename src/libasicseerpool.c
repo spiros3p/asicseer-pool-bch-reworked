@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Calin Culianu <calin.culianu@gmail.com>
+ * Copyright (c) 2020-2026 Calin Culianu <calin.culianu@gmail.com>
  * Copyright (c) 2020 ASICshack LLC https://asicshack.com
  * Copyright 2014-2018 Con Kolivas
  *
@@ -1987,59 +1987,70 @@ double sane_tdiff(const tv_t *end, const tv_t *start)
     return tdiff;
 }
 
-/* Convert a double value into a truncated string for displaying with its
- * associated suitable for Mega, Giga etc. Buf array needs to be long enough */
-void suffix_string(double val, char *buf, size_t bufsiz, int sigdigits)
+void suffix_string(const double val_in, char *const buf, const unsigned bufsize, const unsigned precision)
 {
-    const double kilo = 1000;
-    const double mega = 1000000;
-    const double giga = 1000000000;
-    const double tera = 1000000000000;
-    const double peta = 1000000000000000;
-    const double exa  = 1000000000000000000;
-    char suffix[2] = "";
-    bool decimal = true;
-    double dval;
+    if (bufsize)
+        buf[0] = '\0'; // start with a clean slate
+    if (bufsize <= 1)
+        return; // misuse of function -- no space to write anything!
 
-    if (val >= exa) {
-        val /= peta;
-        dval = val / kilo;
-        strcpy(suffix, "E");
-    } else if (val >= peta) {
-        val /= tera;
-        dval = val / kilo;
-        strcpy(suffix, "P");
-    } else if (val >= tera) {
-        val /= giga;
-        dval = val / kilo;
-        strcpy(suffix, "T");
-    } else if (val >= giga) {
-        val /= mega;
-        dval = val / kilo;
-        strcpy(suffix, "G");
-    } else if (val >= mega) {
-        val /= kilo;
-        dval = val / kilo;
-        strcpy(suffix, "M");
-    } else if (val >= kilo) {
-        dval = val / kilo;
-        strcpy(suffix, "K");
+    static const char *suffix[] = {"", "K", "M", "G", "T", "P", "E", NULL};
+    size_t i = 0u;
+    const bool neg = val_in < 0.0;
+    double val = fabs(val_in); // work with absolute value for the section below
+
+    if (val < 1000.0) {
+        // Remove fractional part for values <1000
+        val = trunc(val);
     } else {
-        dval = val;
-        decimal = false;
+        // Otherwise we are in the regime >= 'K', so keep dividing down until we get to units <1000 or we get to 'E'
+        while (val >= 1000.0 && suffix[i+1]) {
+            val /= 1000.0;
+            ++i;
+        }
     }
+    // re-apply sign (if any)
+    if (neg)
+        val = -val;
 
-    if (!sigdigits) {
-        if (decimal)
-            snprintf(buf, bufsiz, "%.3g%s", dval, suffix);
-        else
-            snprintf(buf, bufsiz, "%d%s", (unsigned int)dval, suffix);
+    if (!precision) {
+        const int retval = snprintf(buf, bufsize, "%.2f", val);
+        size_t buflen = 0;
+        if (retval < 0) {
+            // error: truncate string and return
+            buf[0] = '\0';
+            return;
+        } else if ((size_t)retval != (buflen = strlen(buf))) {
+            // caller provided a short buffer, cannot proceed; just return what we have
+            return;
+        }
+
+        /* Clean up trailing zeros for cleaner logs like "15.60T" -> "15.6T" */
+        const char *const dot = strchr(buf, '.');
+        if (dot) {
+            char *end = buf + buflen - 1;
+
+            // Trim trailing zeroes after the dot
+            while (end > dot && *end == '0') {
+                *end-- = '\0';
+                --buflen;
+            }
+
+            if (*end == '.') {
+                // If we get here we trimmed all zeroes, so remove the dangling dot
+                *end-- = '\0';
+                --buflen;
+            }
+        }
+        if (buflen + strlen(suffix[i]) < bufsize)
+            strcat(buf, suffix[i]);
     } else {
-        /* Always show sigdigits + 1, padded on right with zeroes
-         * followed by suffix */
-        int ndigits = sigdigits - 1 - (dval > 0.0 ? floor(log10(dval)) : 0);
-
-        snprintf(buf, bufsiz, "%*.*f%s", sigdigits + 1, ndigits, dval, suffix);
+        const int retval = snprintf(buf, bufsize, "%.*f%s", (int)precision, val, suffix[i]) ;
+        if (retval < 0) {
+            // error: truncate string and return
+            buf[0] = '\0';
+            return;
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Calin Culianu <calin.culianu@gmail.com>
+ * Copyright (c) 2020-2026 Calin Culianu <calin.culianu@gmail.com>
  * Copyright (c) 2020 ASICshack LLC https://asicshack.com
  * Copyright 2014-2018 Con Kolivas
  *
@@ -648,7 +648,9 @@ double tvdiff(const tv_t *end, const tv_t *start);
 
 void decay_time(double *f, double fadd, double fsecs, double interval);
 double sane_tdiff(const tv_t *end, const tv_t *start);
-void suffix_string(double val, char *buf, size_t bufsiz, int sigdigits);
+/* Convert a double value into a truncated string for displaying with its
+ * associated suitable for Mega, Giga etc. Buf array needs to be long enough. */
+void suffix_string(double val, char *buf, unsigned bufsiz, unsigned sigdigits);
 
 double le256todouble(const uchar *target);
 double diff_from_target(const uchar *target);

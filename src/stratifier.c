@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Calin Culianu <calin.culianu@gmail.com>
+ * Copyright (c) 2020-2026 Calin Culianu <calin.culianu@gmail.com>
  * Copyright (c) 2020 ASICshack LLC https://asicshack.com
  * Copyright 2014-2018 Con Kolivas
  *
