@@ -36,7 +36,6 @@ services:
       - "7"
       - -B
       - -k
-      - -L
       - -c
       - /asicseer/asicseer-pool.conf
     networks:
