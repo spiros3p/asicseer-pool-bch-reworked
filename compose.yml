@@ -32,8 +32,8 @@ services:
       # - ./pool-logs-2:/usr/src/asicseer-pool/build/src/logs
     command:
       - /usr/bin/asicseer-pool
-      - -l
-      - "7"
+      # - -l
+      # - "7"
       - -B
       - -k
       - -c
